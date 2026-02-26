@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Music Therapy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="style.css"/>
+
+<style>
+
+  body {
+    background: linear-gradient(135deg, #FEFAF2 0%, #F1FFF6 100%);
+    animation: bgShift 9s ease-in-out infinite alternate;
+    font-family: Inter, sans-serif;
+    color: #0b4036;
+  }
+
+  @keyframes bgShift {
+    0%   { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+  }
+
+  .music-wrapper {
+    max-width: 900px;
+    margin: auto;
+  }
+
+  .music-card {
+    background: rgba(255,255,255,0.88);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 14px 45px rgba(0, 166, 147, 0.12);
+    backdrop-filter: blur(14px);
+    margin-bottom: 30px;
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+
+  .music-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 58px rgba(0,166,147,0.18);
+  }
+
+  h2 {
+    margin-top: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0b4036;
+  }
+
+  .small {
+    color: #3e6f63;
+  }
+
+  /* Mood Buttons Grid */
+  .mood-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(135px,1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  .mood-btn {
+    background: #ffffff;
+    border: none;
+    padding: 18px;
+    border-radius: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .18s ease;
+    box-shadow: 0 10px 22px rgba(0,166,147,0.12);
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0b4036;
+  }
+
+  .mood-btn span {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .mood-btn:hover {
+    transform: translateY(-3px);
+    background: #f2fff9;
+    box-shadow: 0 14px 28px rgba(0,166,147,0.22);
+  }
+
+  /* Playlist Box */
+  .playlist-box {
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 16px;
+    margin-top: 22px;
+    display: none;
+    animation: fadeIn .4s ease;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.05);
+    border-left: 5px solid #00A693;
+  }
+
+  @keyframes fadeIn {
+    from { opacity:0; transform:translateY(6px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .button {
+    margin-top: 22px;
+    padding: 12px 26px;
+    background: linear-gradient(90deg,#00A693,#32cdb8);
+    border-radius: 14px;
+    border:none;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+    box-shadow: 0 6px 26px rgba(0,166,147,0.25);
+  }
+
+  .button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 34px rgba(0,166,147,0.35);
+  }
+
+</style>
+</head>
+
+<body>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="music.html">Music</a>
+</nav>
+
+<div class="container music-wrapper">
+
+  <div class="music-card">
+    <h2>🎧 Mood-Based Music Therapy</h2>
+    <p class="small">Select your mood and instantly get a Spotify playlist tailored to your emotional state.</p>
+
+    <!-- Mood Selection -->
+    <div class="mood-grid">
+      <button class="mood-btn" onclick="selectMood('happy')">
+        <span>😄</span>Happy Boost
+      </button>
+
+      <button class="mood-btn" onclick="selectMood('calm')">
+        <span>😌</span>Calm & Soft
+      </button>
+
+      <button class="mood-btn" onclick="selectMood('sad')">
+        <span>😢</span>Sad & Healing
+      </button>
+
+      <button class="mood-btn" onclick="selectMood('stressed')">
+        <span>😣</span>Stress Relief
+      </button>
+    </div>
+
+    <button class="button" onclick="openPlaylist()">🎶 Open Playlist</button>
+
+    <!-- Result Box -->
+    <div id="playlistBox" class="playlist-box">
+      <strong>Playlist:</strong>
+      <a id="playlistLink" href="#" target="_blank" style="color:#007f67;font-weight:600;">
+        Open on Spotify
+      </a>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+let selectedMood = "happy";
+const API = (location.hostname === "localhost") ? "http://localhost:5000" : "";
+
+/* Select mood */
+function selectMood(m) {
+  selectedMood = m;
+  toast("Mood selected: " + m.charAt(0).toUpperCase() + m.slice(1));
+}
+
+/* Fetch playlist */
+async function openPlaylist() {
+  const res = await fetch(API + "/music/" + selectedMood);
+  const data = await res.json();
+
+  if (data.playlist) {
+    const box = document.getElementById("playlistBox");
+    const link = document.getElementById("playlistLink");
+
+    link.href = data.playlist;
+    box.style.display = "block";
+
+    window.open(data.playlist, "_blank");
+    toast("Opening playlist...");
+  } else {
+    toast("No playlist found for this mood.");
+  }
+}
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>

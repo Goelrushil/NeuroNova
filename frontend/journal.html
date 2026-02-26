@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Journal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="style.css"/>
+
+<style>
+
+  /* Background */
+  body {
+    background: linear-gradient(135deg, #FEFAF2 0%, #F1FFF6 100%);
+    animation: bgShift 10s ease-in-out infinite alternate;
+    font-family: Inter, sans-serif;
+  }
+
+  @keyframes bgShift {
+    0% { background-position: 0 0; }
+    100% { background-position: 100% 100%; }
+  }
+
+  .journal-wrapper {
+    max-width: 950px;
+    margin: auto;
+  }
+
+  h2, h3 {
+    font-weight: 800;
+    color: #0b4036;
+  }
+
+  h2 {
+    font-size: 1.9rem;
+  }
+
+  /* Journal Card */
+  .journal-card {
+    padding: 26px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 14px 40px rgba(0, 166, 147, 0.15);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    margin-bottom: 26px;
+  }
+
+  .journal-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 50px rgba(0, 166, 147, 0.22);
+  }
+
+  textarea {
+    width: 100%;
+    background: #eefcf7;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    resize: none;
+    font-size: 1rem;
+    font-family: Inter;
+    transition: box-shadow 0.2s ease;
+    color: #0f403a;
+  }
+
+  textarea:focus {
+    background: white;
+    outline: none;
+    box-shadow: 0 0 0 2px #00A693;
+  }
+
+  .input-field {
+    width: 100%;
+    background: #eefcf7;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: box-shadow 0.2s ease;
+    margin-top: 12px;
+    color: #0f403a;
+  }
+
+  .input-field:focus {
+    background: white;
+    outline: none;
+    box-shadow: 0 0 0 2px #00A693;
+  }
+
+  /* Button */
+  .button {
+    margin-top: 14px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #00A693, #32cdb8);
+    color: white;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 6px 22px rgba(0,166,147,0.25);
+  }
+
+  .button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 32px rgba(0,166,147,0.35);
+  }
+
+  /* Entry Display */
+  .entry-card {
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    margin-bottom: 16px;
+    animation: fadeIn 0.4s ease;
+    border-left: 6px solid #00A693;
+  }
+
+  .entry-card strong {
+    font-size: 1.05rem;
+    color: #0b4036;
+  }
+
+  @keyframes fadeIn {
+    from { opacity:0; transform: translateY(6px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+</style>
+</head>
+
+<body>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="journal.html">Journal</a>
+</nav>
+
+<div class="container journal-wrapper">
+
+  <!-- TOP CARD -->
+  <div class="journal-card">
+    <h2>📝 Journal Your Day</h2>
+    <p class="small" style="color:#467468;margin-bottom:14px;">
+      Write thoughts, emotions or daily reflections. Everything stays private.
+    </p>
+
+    <textarea id="journalText" rows="6" placeholder="Write anything that's on your mind..."></textarea>
+
+    <input id="journalMood" class="input-field" placeholder="Mood (😊 Calm, 😔 Sad, 😄 Happy)"/>
+
+    <button class="button" onclick="saveJournal()">Save Entry</button>
+  </div>
+
+  <!-- ENTRIES SECTION -->
+  <div class="journal-card">
+    <h3 style="margin-top:0;">📚 Your Past Entries</h3>
+    <div id="entries"></div>
+  </div>
+
+</div>
+
+<script>
+async function saveJournal(){
+  const text = document.getElementById('journalText').value;
+  const mood = document.getElementById('journalMood').value;
+
+  if(!text.trim()) {
+    toast("✏️ Write something first!");
+    return;
+  }
+
+  await fetch((location.hostname==='localhost'? 'http://localhost:5000':'') + '/journal', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ text, mood, time:new Date().toISOString() })
+  });
+
+  document.getElementById('journalText').value = '';
+  document.getElementById('journalMood').value = '';
+  loadEntries();
+  toast('💾 Journal saved!');
+}
+
+async function loadEntries(){
+  const res = await fetch((location.hostname==='localhost'? 'http://localhost:5000':'') + '/journal');
+  const list = await res.json();
+
+  const el = document.getElementById('entries');
+  el.innerHTML = '';
+
+  list.slice().reverse().forEach(j => {
+    const entry = document.createElement('div');
+    entry.className = 'entry-card';
+    entry.innerHTML = `
+      <strong>${j.mood || "📝 Entry"}</strong><br>
+      ${j.text}<br><br>
+      <span style="font-size:12px;color:#678;">${new Date(j.time).toLocaleString()}</span>
+    `;
+    el.appendChild(entry);
+  });
+}
+
+loadEntries();
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>

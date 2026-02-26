@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Custom Bot Builder • Neuronova</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="style.css"/>
+
+<style>
+
+  body {
+    background: linear-gradient(135deg, #FDFBF7 0%, #f2fff6 100%);
+    animation: bgShift 10s ease-in-out infinite alternate;
+    font-family: Inter, sans-serif;
+  }
+
+  @keyframes bgShift {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+  }
+
+  .builder-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .header-area {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+
+  .header-area h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #084c3f;
+  }
+
+  .header-area p {
+    font-size: 0.95rem;
+    color: #4a4a4a;
+  }
+
+  /* Main Custom Bot Card */
+  .bot-card {
+    background: rgba(255,255,255,0.85);
+    padding: 24px;
+    border-radius: 16px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+    margin-bottom: 22px;
+    transition: .2s ease;
+  }
+
+  .bot-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+  }
+
+  .label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #064f42;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .bot-input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: #eefdfa;
+    font-size: 1rem;
+    margin-bottom: 14px;
+    color: #0a4238;
+  }
+
+  .bot-input:focus {
+    outline: 2px solid #00A693;
+    background: #fff;
+  }
+
+  textarea.bot-input {
+    resize: vertical;
+  }
+
+  .save-btn {
+    background: linear-gradient(90deg, #00A693, #32cdb8);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(0,166,147,0.30);
+    transition: 0.2s ease;
+  }
+
+  .save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 24px rgba(0,166,147,0.40);
+  }
+
+  .preview-card {
+    margin-top: 18px;
+    padding: 18px;
+    border-left: 4px solid #00A693;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.05);
+    animation: fadeIn .3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity:0; transform:translateY(4px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .status-msg {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #0e5a4e;
+    font-weight: 600;
+  }
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="index.html">Home</a>
+  <a href="chatbot.html">Chatbot</a>
+  <a href="custombot.html">Custom Bot</a>
+  <a href="webcam.html">Live Webcam</a>
+</nav>
+
+<div class="container builder-wrapper">
+
+  <!-- HEADER -->
+  <div class="header-area">
+    <h2>⚙️ Custom Bot Personality Builder</h2>
+    <p>Create your own AI companion by shaping its personality, tone, and behavior.</p>
+  </div>
+
+  <!-- MAIN BUILDER CARD -->
+  <div class="bot-card">
+
+    <label class="label">✨ Personality</label>
+    <input id="personality" class="bot-input" placeholder="e.g., calm, empathetic, funny, energetic"/>
+
+    <label class="label">🎙️ Tone</label>
+    <input id="tone" class="bot-input" placeholder="e.g., therapist-like, humorous, formal, casual"/>
+
+    <label class="label">🧠 Behaviour Instructions</label>
+    <textarea id="instructions" class="bot-input" rows="6"
+      placeholder="Describe how you want your bot to talk, think, respond, and guide the user."></textarea>
+
+    <button class="save-btn" onclick="saveBot()">Save Custom Bot</button>
+
+    <p id="status" class="status-msg"></p>
+
+    <!-- LIVE PREVIEW -->
+    <div id="previewBox" class="preview-card" style="display:none;">
+      <strong>🔎 Live Preview:</strong>
+      <p id="previewText" style="margin-top:8px; color:#333;"></p>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const API = (location.hostname === "localhost") 
+  ? "http://localhost:5000" 
+  : "";
+
+// Load saved settings
+async function loadBot() {
+  try {
+    const res = await fetch(API + "/custom-bot");
+    const bot = await res.json();
+
+    document.getElementById("personality").value = bot.personality || "";
+    document.getElementById("tone").value = bot.tone || "";
+    document.getElementById("instructions").value = bot.instructions || "";
+
+    updatePreview();
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// Live preview
+function updatePreview() {
+  const p = document.getElementById("personality").value;
+  const t = document.getElementById("tone").value;
+  const i = document.getElementById("instructions").value;
+
+  const box = document.getElementById("previewBox");
+  const text = document.getElementById("previewText");
+
+  if (!p && !t && !i) {
+    box.style.display = "none";
+    return;
+  }
+
+  box.style.display = "block";
+  text.innerHTML = `
+    <strong>Personality:</strong> ${p || "—"}<br>
+    <strong>Tone:</strong> ${t || "—"}<br>
+    <strong>Behaviour:</strong> ${i || "—"}
+  `;
+}
+
+document.getElementById("personality").addEventListener("input", updatePreview);
+document.getElementById("tone").addEventListener("input", updatePreview);
+document.getElementById("instructions").addEventListener("input", updatePreview);
+
+// Save Bot
+async function saveBot() {
+  const body = {
+    personality: document.getElementById("personality").value.trim(),
+    tone: document.getElementById("tone").value.trim(),
+    instructions: document.getElementById("instructions").value.trim()
+  };
+
+  try {
+    const res = await fetch(API + "/custom-bot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    const data = await res.json();
+    if (data.message) {
+      toast("Custom bot saved!");
+      document.getElementById("status").innerText = "Bot settings saved successfully!";
+    }
+  } catch (err) {
+    console.error(err);
+    toast("Failed to save!");
+  }
+}
+
+window.addEventListener("DOMContentLoaded", loadBot);
+</script>
+
+<script src="script.js"></script>
+
+</body>
+</html>

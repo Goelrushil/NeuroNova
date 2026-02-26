@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Neuronova Chatbot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" href="style.css"/>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #FDFBF7 0%, #f2fff6 100%);
+      animation: bgShift 10s ease-in-out infinite alternate;
+    }
+
+    @keyframes bgShift {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 100% 100%; }
+    }
+
+    .chat-container {
+      max-width: 950px;
+      margin: 0 auto;
+      padding-bottom: 110px;
+    }
+
+    .header-area {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header-area h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #094236;
+    }
+
+    .header-area p {
+      color: #4a4a4a;
+      margin-top: 6px;
+    }
+
+    /* Active Bot Summary */
+    #activeBotSummary {
+      margin: 0 auto 20px auto;
+      max-width: 650px;
+      padding: 14px;
+      background: rgba(255,255,255,0.65);
+      border-left: 4px solid #00A693;
+      border-radius: 12px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 6px 20px rgba(0, 166, 147, 0.15);
+      display: none;
+      animation: fadeIn .4s ease;
+      color: #07362d;
+      font-size: 0.95rem;
+    }
+
+    /* Chatbox Area */
+    .chat-window {
+      background: rgba(255,255,255,0.8);
+      border-radius: 14px;
+      padding: 20px;
+      height: 60vh;
+      overflow-y: auto;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06);
+      backdrop-filter: blur(12px);
+    }
+
+    /* Chat bubbles */
+    .bubble {
+      max-width: 75%;
+      padding: 14px 18px;
+      margin: 12px 0;
+      border-radius: 16px;
+      line-height: 1.45;
+      animation: bubbleIn .25s ease;
+    }
+
+    @keyframes bubbleIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .you {
+      background: #E3F8F4;
+      border-left: 4px solid #00A693;
+      margin-left: auto;
+      text-align: right;
+      color: #054f42;
+    }
+
+    .ai {
+      background: #ffffff;
+      border-left: 4px solid #00A693;
+      color: #2f2f2f;
+      margin-right: auto;
+    }
+
+    /* Floating Input Bar */
+    .input-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 95%;
+      max-width: 900px;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(14px);
+      padding: 14px;
+      border-radius: 16px;
+      box-shadow: 0 12px 35px rgba(0, 166, 147, 0.20);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .input-bar textarea {
+      flex: 1;
+      border-radius: 12px;
+      padding: 12px;
+      resize: none;
+      border: none;
+      outline: none;
+      background: #f7fffd;
+      font-size: 1rem;
+      color: #0d5144;
+    }
+
+    .send-btn {
+      background: linear-gradient(90deg, #00A693, #32cdb8);
+      padding: 14px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      border: none;
+      font-weight: 600;
+      color: #fff;
+      transition: 0.2s;
+      box-shadow: 0 4px 18px rgba(0, 166, 147, 0.35);
+    }
+
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 166, 147, 0.45);
+    }
+
+  </style>
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav>
+  <a href="index.html">Home</a>
+  <a href="chatbot.html">Chatbot</a>
+  <a href="custombot.html">Custom Bot</a>
+  <a href="webcam.html">Live Webcam</a>
+</nav>
+
+<div class="container chat-container">
+
+  <!-- Header -->
+  <div class="header-area">
+    <h2>💬 Neuronova AI Chat</h2>
+    <p>Your personal wellness companion — now enhanced with custom personalities.</p>
+  </div>
+
+  <!-- Active Custom Bot Info -->
+  <div id="activeBotSummary"></div>
+
+  <!-- Chat Window -->
+  <div class="chat-window" id="chatWindow">
+    <div class="bubble ai">Hi! I’m your AI companion. How can I support you today? ✨</div>
+  </div>
+
+</div>
+
+<!-- Floating Input Bar -->
+<div class="input-bar">
+  <textarea id="msg" rows="2" placeholder="Type your message…"></textarea>
+  <button class="send-btn" onclick="sendToChatbot()">Send</button>
+</div>
+
+<script>
+const API = (location.hostname === "localhost") ? "http://localhost:5000" : "";
+
+// Load active custom bot and show summary
+async function loadActiveBot() {
+  try {
+    const res = await fetch(API + "/custom-bot");
+    const bot = await res.json();
+
+    const box = document.getElementById("activeBotSummary");
+
+    if ((!bot.personality && !bot.tone && !bot.instructions)) {
+      box.style.display = "none";
+      return;
+    }
+
+    box.style.display = "block";
+    box.innerHTML = `
+      <strong>Active Custom Bot</strong><br>
+      Personality: <em>${bot.personality || "—"}</em><br>
+      Tone: <em>${bot.tone || "—"}</em><br>
+      Behaviour: <em>${bot.instructions || "—"}</em>
+    `;
+  } catch {}
+}
+document.addEventListener("DOMContentLoaded", loadActiveBot);
+
+// Chat function
+async function sendToChatbot() {
+  const text = document.getElementById("msg").value.trim();
+  if (!text) return;
+
+  const chatBox = document.getElementById("chatWindow");
+
+  // User bubble
+  chatBox.innerHTML += `<div class="bubble you">${text.replace(/\n/g, "<br>")}</div>`;
+  document.getElementById("msg").value = "";
+
+  // Scroll to bottom
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  // AI typing bubble
+  const typingId = "typing_" + Date.now();
+  chatBox.innerHTML += `<div class="bubble ai" id="${typingId}"><em>Typing...</em></div>`;
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  try {
+    const res = await fetch(API + "/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text })
+    });
+
+    const data = await res.json();
+
+    document.getElementById(typingId).innerHTML =
+      data.reply.replace(/\n/g, "<br>");
+      
+  } catch (err) {
+    document.getElementById(typingId).innerHTML =
+      "⚠️ Unable to reach server.";
+  }
+
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "moods": [
+    {
+      "id": 1763696250343,
+      "mood": "😡",
+      "note": "",
+      "time": "2025-11-21T03:37:30.335Z"
+    },
+    {
+      "id": 1763707190723,
+      "mood": "😊",
+      "note": "",
+      "time": "2025-11-21T06:39:50.718Z"
+    },
+    {
+      "id": 1763969170106,
+      "mood": "😄",
+      "note": "",
+      "time": "2025-11-24T07:26:10.087Z"
+    }
+  ],
+  "journals": [],
+  "sleep": [
+    {
+      "hours": 6.5,
+      "time": "2025-11-21T08:56:35.134Z"
+    }
+  ],
+  "webcam": [],
+  "customBot": {
+    "personality": "rude",
+    "tone": "angry",
+    "instructions": "like a angry professor"
+  }
+}

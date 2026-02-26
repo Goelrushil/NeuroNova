@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Sleep Tracking</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="style.css"/>
+
+<style>
+
+  body {
+    background: linear-gradient(135deg, #FEFAF2 0%, #F1FFF6 100%);
+    background-size: 200% 200%;
+    animation: bgShift 9s ease-in-out infinite alternate;
+    font-family: Inter, sans-serif;
+    color: #0b4036;
+  }
+
+  @keyframes bgShift {
+    0%   { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+  }
+
+  .sleep-wrapper {
+    max-width: 900px;
+    margin: auto;
+  }
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0b4036;
+  }
+
+  h3 {
+    color: #0b4036;
+  }
+
+  /* Input Field */
+  .sleep-input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    background: #f1f8f6;
+    font-size: 1rem;
+    margin-top: 12px;
+    transition: all .2s ease;
+    box-shadow: 0 6px 18px rgba(0,166,147,0.1);
+  }
+
+  .sleep-input:focus {
+    background: #ffffff;
+    outline: none;
+    box-shadow: 0 0 0 2px #00A693, 0 6px 20px rgba(0,166,147,0.18);
+  }
+
+  /* Entry Block */
+  .sleep-entry {
+    padding: 16px;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    background: #ffffff;
+    border-left: 5px solid #00A693;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.06);
+    animation: fadeIn .35s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .button {
+    margin-top: 16px;
+    padding: 12px 26px;
+    background: linear-gradient(90deg, #00A693, #2fc7b3);
+    border-radius: 14px;
+    border:none;
+    color:white;
+    font-weight:600;
+    cursor:pointer;
+    transition: all .18s ease;
+    box-shadow: 0 6px 24px rgba(0,166,147,0.25);
+  }
+
+  .button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 34px rgba(0,166,147,0.35);
+  }
+
+</style>
+
+</head>
+
+<body>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="sleep.html">Sleep</a>
+  <a href="custombot.html">Custom Bot</a>
+</nav>
+
+<div class="container sleep-wrapper">
+
+  <!-- Input Card -->
+  <div class="card" style="background:rgba(255,255,255,0.88);backdrop-filter:blur(14px);">
+    <h2>😴 Sleep Tracking</h2>
+    <p class="small" style="color:#3e6f63;">Track your sleep to understand rest quality and wellness patterns.</p>
+
+    <input id="sleepHours" class="sleep-input" placeholder="Hours slept (e.g., 7.5)"/>
+
+    <button class="button" onclick="saveSleep()">Save Sleep</button>
+  </div>
+
+  <!-- History Card -->
+  <div class="card" style="background:rgba(255,255,255,0.88);backdrop-filter:blur(14px);">
+    <h3>📘 Sleep History</h3>
+    <div id="sleepList"></div>
+  </div>
+
+</div>
+
+<script>
+async function saveSleep() {
+  const val = parseFloat(document.getElementById('sleepHours').value);
+  if (isNaN(val)) return toast('Please enter valid hours');
+
+  await fetch((location.hostname==='localhost'? 'http://localhost:5000':'') + '/sleep', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      hours: val,
+      time: new Date().toISOString()
+    })
+  });
+
+  document.getElementById('sleepHours').value = '';
+  loadSleep();
+  toast('😴 Sleep logged!');
+}
+
+async function loadSleep() {
+  const res = await fetch((location.hostname==='localhost'? 'http://localhost:5000':'') + '/sleep');
+  const list = await res.json();
+
+  const el = document.getElementById('sleepList');
+  el.innerHTML = '';
+
+  list.slice().reverse().forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'sleep-entry';
+    div.innerHTML = `
+      <strong>${entry.hours} hrs</strong><br>
+      <span class="small" style="color:#3e6f63;">${new Date(entry.time).toLocaleString()}</span>
+    `;
+    el.appendChild(div);
+  });
+}
+
+loadSleep();
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>

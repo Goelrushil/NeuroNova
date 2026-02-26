@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Neuronova — AI Wellness Companion</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="style.css"/>
+
+<style>
+
+  /* GLOBAL BACKGROUND */
+  body {
+    background: linear-gradient(135deg, #FEFAF2 0%, #F1FFF6 100%);
+    background-size: 200% 200%;
+    animation: bgMove 9s ease-in-out infinite alternate;
+    font-family: Inter, sans-serif;
+    color: #0b4036;
+    padding-bottom: 50px;
+  }
+
+  @keyframes bgMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 100% 100%; }
+  }
+
+  /* HERO SECTION */
+  .hero {
+    text-align: center;
+    padding: 70px 20px;
+    animation: fadeIn 0.7s ease;
+  }
+
+  .hero h1 {
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    font-weight: 800;
+    background: linear-gradient(90deg, #007f67, #00A693);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -1px;
+  }
+
+  .hero p {
+    font-size: 1.15rem;
+    color: #26584c;
+    max-width: 650px;
+    margin: auto;
+    line-height: 1.6;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* CTA BUTTONS */
+  .cta-buttons {
+    margin-top: 35px;
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .cta-btn {
+    background: linear-gradient(90deg, #00A693, #32cdb8);
+    padding: 13px 26px;
+    border-radius: 14px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 10px 26px rgba(0, 166, 147, 0.25);
+    transition: all .2s ease;
+  }
+
+  .cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(0, 166, 147, 0.35);
+  }
+
+  /* FEATURES GRID */
+  .features {
+    max-width: 1150px;
+    margin: 60px auto;
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    padding: 0 20px;
+  }
+
+  .feature-card {
+    background: rgba(255,255,255,0.85);
+    border-radius: 18px;
+    padding: 26px;
+    text-align: center;
+    box-shadow: 0 12px 38px rgba(0,0,0,0.06);
+    backdrop-filter: blur(12px);
+    transition: transform .22s ease, box-shadow .22s ease;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 48px rgba(0, 166, 147, 0.12);
+  }
+
+  .feature-card h3 {
+    margin-bottom: 8px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0b4036;
+  }
+
+  .feature-icon {
+    font-size: 40px;
+    margin-bottom: 14px;
+    color: #00A693;
+  }
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="index.html">Home</a>
+  <a href="chatbot.html">Chatbot</a>
+  <a href="webcam.html">Live Webcam</a>
+  <a href="mood.html">Mood</a>
+  <a href="journal.html">Journal</a>
+  <a href="sleep.html">Sleep</a>
+  <a href="music.html">Music</a>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="counselling.html">Counselling</a>
+  <a href="custombot.html">Custom Bot</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Neuronova</h1>
+  <p>
+    Your AI-powered mental wellness companion — blending emotion AI,
+    mood analytics, webcam detection, personalised AI therapy,
+    and a complete wellbeing dashboard.
+  </p>
+
+  <div class="cta-buttons">
+    <a class="cta-btn" href="chatbot.html">💬 Talk to AI</a>
+    <a class="cta-btn" href="webcam.html">📷 Emotion Scanner</a>
+    <a class="cta-btn" href="dashboard.html">🌿 Wellness Dashboard</a>
+  </div>
+</div>
+
+<!-- FEATURE CARDS -->
+<div class="features">
+
+  <div class="feature-card">
+    <div class="feature-icon">💬</div>
+    <h3>AI Chatbot</h3>
+    <p>Emotion-aware Gemini chatbot trained to respond with empathy and intelligence.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">📷</div>
+    <h3>Live Emotion Scan</h3>
+    <p>Real-time expression recognition from your webcam with privacy-safe processing.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">📊</div>
+    <h3>Wellness Dashboard</h3>
+    <p>Track XP, badges, hydration, mood trends, sleep score & steps.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">✍️</div>
+    <h3>Journal</h3>
+    <p>Write freely, save entries, and observe emotional patterns over time.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">🎧</div>
+    <h3>Music Therapy</h3>
+    <p>Auto-recommended Spotify playlists based on your emotion state.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">🛌</div>
+    <h3>Sleep Tracking</h3>
+    <p>Monitor sleep hours and calculate your recovery score every night.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">🧑‍⚕️</div>
+    <h3>Counselling</h3>
+    <p>Safe, anonymous place to express feelings with supportive responses.</p>
+  </div>
+
+  <div class="feature-card">
+    <div class="feature-icon">🤖</div>
+    <h3>Custom AI Bot</h3>
+    <p>Create your own AI companion with a unique personality & style.</p>
+  </div>
+
+</div>
+
+</body>
+</html>

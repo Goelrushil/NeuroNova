@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Counselling • Neuronova</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="style.css"/>
+
+<style>
+
+  body {
+    background: linear-gradient(135deg, #FDFBF7 0%, #f2fff6 100%);
+    animation: bgShift 10s ease-in-out infinite alternate;
+    font-family: Inter, sans-serif;
+  }
+
+  @keyframes bgShift {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+  }
+
+  .counsel-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding-bottom: 120px;
+  }
+
+  .counsel-header {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .counsel-header h2 {
+    font-size: 2rem;
+    color: #07493c;
+    font-weight: 800;
+  }
+
+  .counsel-header p {
+    color: #4b4b4b;
+    font-size: 0.95rem;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    background: #4ade80;
+    color: #064d18;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    margin-left: 6px;
+  }
+
+  /* Chat window */
+  .chat-box {
+    background: rgba(255,255,255,0.80);
+    padding: 22px;
+    border-radius: 18px;
+    height: 60vh;
+    overflow-y: auto;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+  }
+
+  /* Chat bubbles */
+  .bubble {
+    padding: 14px 18px;
+    max-width: 70%;
+    margin-bottom: 14px;
+    border-radius: 16px;
+    line-height: 1.5;
+    animation: bubbleIn .25s ease;
+  }
+
+  @keyframes bubbleIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .you {
+    background: #D7F5EF;
+    border-left: 4px solid #00A693;
+    margin-left: auto;
+    color: #064d3f;
+  }
+
+  .counselor {
+    background: #ffffff;
+    border-left: 4px solid #00A693;
+    margin-right: auto;
+    color: #2f2f2f;
+  }
+
+  /* Floating Input Bar */
+  .input-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
+    max-width: 900px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(14px);
+    padding: 14px;
+    border-radius: 16px;
+    box-shadow: 0 12px 35px rgba(0, 166, 147, 0.20);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  #cmsg {
+    flex: 1;
+    border-radius: 12px;
+    padding: 12px;
+    resize: none;
+    border: none;
+    outline: none;
+    background: #f3fffb;
+    font-size: 1rem;
+  }
+
+  #cmsg:focus {
+    background: #fff;
+    outline: 2px solid #00A693;
+  }
+
+  .send-btn {
+    background: linear-gradient(90deg, #00A693, #32cdb8);
+    border: none;
+    padding: 12px 20px;
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 5px 20px rgba(0,166,147,0.30);
+    transition: 0.2s ease;
+  }
+
+  .send-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 24px rgba(0,166,147,0.35);
+  }
+
+</style>
+</head>
+
+<body>
+
+<!-- NAVIGATION -->
+<nav>
+  <a href="index.html">Home</a>
+  <a href="chatbot.html">Chatbot</a>
+  <a href="custombot.html">Custom Bot</a>
+  <a href="counselling.html">Counselling</a>
+</nav>
+
+<div class="container counsel-wrapper">
+
+  <!-- HEADER -->
+  <div class="counsel-header">
+    <h2>🧑‍⚕️ Anonymous Counselling</h2>
+    <p>Your counselor is available <span class="status-badge">● Online</span></p>
+  </div>
+
+  <!-- CHAT WINDOW -->
+  <div class="chat-box" id="clog"></div>
+
+</div>
+
+<!-- FLOATING INPUT BAR -->
+<div class="input-bar">
+  <textarea id="cmsg" rows="2" placeholder="Type your message..."></textarea>
+  <button class="send-btn" onclick="send()">Send</button>
+</div>
+
+<script>
+function send() {
+  const text = document.getElementById('cmsg').value;
+  if (!text.trim()) return;
+
+  const chatWindow = document.getElementById('clog');
+
+  // user message bubble
+  chatWindow.innerHTML += `
+    <div class="bubble you">
+      <strong>You</strong><br>${text}<br>
+      <span style="font-size:11px; opacity:0.8;">${new Date().toLocaleTimeString()}</span>
+    </div>
+  `;
+
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+  document.getElementById('cmsg').value = "";
+
+  toast("Message sent (demo)");
+}
+</script>
+
+<script src="script.js"></script>
+
+</body>
+</html>

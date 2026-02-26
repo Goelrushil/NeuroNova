@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Live Webcam — Mood Detection</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="stylesheet" href="style.css"/>
+
+<!-- Face API -->
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+
+<style>
+  body {
+    background: #fffef6;
+    font-family: Inter, sans-serif;
+  }
+  #webcam-container {
+    position: relative;
+    width: 100%;
+  }
+  #overlayCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  #moodError {
+    color: red;
+    display: none;
+    margin-top: 10px;
+  }
+</style>
+</head>
+
+<body>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="chatbot.html">Chatbot</a>
+  <a href="webcam.html">Live Webcam</a>
+</nav>
+
+<div class="container">
+  <div class="card">
+    <h2>📷 Live Emotion Detection</h2>
+
+    <div id="webcam-container">
+      <video id="webcamVideo" autoplay muted playsinline style="width:100%;border-radius:12px;"></video>
+      <canvas id="overlayCanvas"></canvas>
+    </div>
+
+    <div style="margin-top:12px;">
+      <button class="button" onclick="startWebcam()">Start</button>
+      <button class="button" onclick="stopWebcam()">Stop</button>
+    </div>
+
+    <p style="margin-top:10px;">
+      <strong>Detected Mood:</strong>
+      <span id="detectedMood" class="small">—</span>
+    </p>
+
+    <p id="moodError">⚠️ Error loading detection models.</p>
+  </div>
+
+  <div class="card">
+    <h3>Recent Snapshots</h3>
+    <div id="webcamLog" class="log small"></div>
+  </div>
+</div>
+
+<!-- ⭐ FULL WORKING SCRIPT (NO EXTRA FILE NEEDED) -->
+<script>
+
+// ---------------------------
+//  LOAD MODELS
+// ---------------------------
+async function loadModels() {
+  try {
+    // FIXED PATH → No folder structure changes needed
+    await faceapi.nets.tinyFaceDetector.loadFromUri("./models");
+    await faceapi.nets.faceExpressionNet.loadFromUri("./models");
+    await faceapi.nets.faceLandmark68Net.loadFromUri("./models");
+
+    document.getElementById("moodError").style.display = "none";
+
+  } catch (err) {
+    console.log("MODEL LOAD ERROR:", err);
+    document.getElementById("moodError").style.display = "block";
+  }
+}
+
+// ---------------------------
+//  START CAMERA
+// ---------------------------
+let stream;
+
+async function startWebcam() {
+  document.getElementById("detectedMood").innerText = "Loading models...";
+
+  await loadModels();
+
+  stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  const video = document.getElementById("webcamVideo");
+  video.srcObject = stream;
+
+  video.onloadedmetadata = () => {
+    video.play();
+    startDetection();
+  };
+}
+
+// ---------------------------
+//  DETECTION LOOP
+// ---------------------------
+async function startDetection() {
+  const video = document.getElementById("webcamVideo");
+  const canvas = document.getElementById("overlayCanvas");
+
+  const size = { width: video.videoWidth, height: video.videoHeight };
+  canvas.width = size.width;
+  canvas.height = size.height;
+
+  faceapi.matchDimensions(canvas, size);
+
+  setInterval(async () => {
+    const result = await faceapi
+      .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+      .withFaceExpressions();
+
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!result) {
+      document.getElementById("detectedMood").innerText = "No face detected";
+      return;
+    }
+
+    const resized = faceapi.resizeResults(result, size);
+    faceapi.draw.drawDetections(canvas, resized);
+    faceapi.draw.drawFaceExpressions(canvas, resized);
+
+    const mood = getTopMood(result.expressions);
+    document.getElementById("detectedMood").innerText = mood;
+
+  }, 700);
+}
+
+// ---------------------------
+//  CHOOSE HIGHEST PROB MOOD
+// ---------------------------
+function getTopMood(expressions) {
+  const sorted = Object.entries(expressions).sort((a,b)=>b[1]-a[1]);
+  return sorted[0][0];
+}
+
+// ---------------------------
+//  STOP CAMERA
+// ---------------------------
+function stopWebcam() {
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  document.getElementById("detectedMood").innerText = "Stopped";
+}
+
+</script>
+
+<script src="script.js"></script>
+</body>
+</html>

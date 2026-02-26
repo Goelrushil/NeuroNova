@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Mood Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="stylesheet" href="style.css"/>
+
+<style>
+
+  body {
+    background: linear-gradient(135deg, #FEFAF2 0%, #F1FFF6 100%);
+    animation: bgShift 9s ease-in-out infinite alternate;
+    font-family: Inter, sans-serif;
+  }
+
+  @keyframes bgShift {
+    0% { background-position: 0 0; }
+    100% { background-position: 100% 100%; }
+  }
+
+  .mood-wrapper {
+    max-width: 900px;
+    margin: auto;
+  }
+
+  .mood-card {
+    background: rgba(255,255,255,0.85);
+    border-radius: 20px;
+    padding: 26px;
+    margin-bottom: 28px;
+    box-shadow: 0 12px 40px rgba(0, 166, 147, 0.12);
+    backdrop-filter: blur(14px);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+
+  .mood-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 58px rgba(0,166,147,0.18);
+  }
+
+  h2 {
+    margin-top:0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0b4036;
+  }
+
+  h3 {
+    color: #0b4036;
+    font-weight: 700;
+    font-size: 1.35rem;
+  }
+
+  /* Emoji Buttons */
+  .mood-grid {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .mood-btn {
+    background: white;
+    border: none;
+    font-size: 2rem;
+    width: 70px;
+    height: 70px;
+    border-radius: 16px;
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease, background .25s ease;
+    box-shadow: 0 8px 20px rgba(0,166,147,0.12);
+  }
+
+  .mood-btn:hover {
+    transform: scale(1.09);
+    background: #f1fffa;
+    box-shadow: 0 12px 28px rgba(0,166,147,0.22);
+  }
+
+  textarea {
+    width: 100%;
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 14px;
+    background: #eefcf7;
+    border: none;
+    resize: none;
+    font-size: 1rem;
+    transition: box-shadow .2s ease;
+    font-family: Inter;
+    color: #0f403a;
+  }
+
+  textarea:focus {
+    background: #fff;
+    outline:none;
+    box-shadow: 0 0 0 2px #00A693;
+  }
+
+  .button {
+    background: linear-gradient(90deg,#00A693,#32cdb8);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor:pointer;
+    margin-top: 14px;
+    transition: transform .15s ease, box-shadow .15s ease;
+    box-shadow: 0 6px 20px rgba(0,166,147,0.25);
+  }
+
+  .button:hover {
+    transform: translateY(-2px);
+    box-shadow:0 10px 28px rgba(0,166,147,0.35);
+  }
+
+  /* Mood Entry */
+  .mood-entry {
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    background: #ffffff;
+    border-radius: 16px;
+    border-left: 6px solid #00A693;
+    animation: fadeIn .35s ease;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    line-height: 1.5;
+    color: #0b4036;
+  }
+
+  .mood-entry small {
+    color: #556;
+  }
+
+  @keyframes fadeIn {
+    from { opacity:0; transform:translateY(6px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+</style>
+</head>
+
+<body>
+
+<nav>
+  <a href="index.html">Home</a>
+  <a href="mood.html">Mood</a>
+</nav>
+
+<div class="container mood-wrapper">
+
+  <!-- Mood Input Card -->
+  <div class="mood-card">
+    <h2>🌿 Mood Tracker</h2>
+    <p class="small" style="color:#467468;">Pick an emoji or write your own emotion.</p>
+
+    <div class="mood-grid">
+      <button class="mood-btn" onclick="saveMood('😄')">😄</button>
+      <button class="mood-btn" onclick="saveMood('😊')">😊</button>
+      <button class="mood-btn" onclick="saveMood('😔')">😔</button>
+      <button class="mood-btn" onclick="saveMood('😡')">😡</button>
+      <button class="mood-btn" onclick="saveMood('😴')">😴</button>
+      <button class="mood-btn" onclick="saveMood('🤯')">🤯</button>
+      <button class="mood-btn" onclick="saveMood('🤩')">🤩</button>
+    </div>
+
+    <textarea id="moodNote" placeholder="Describe your mood... (optional)"></textarea>
+    <button class="button" onclick="saveMoodManual()">Save Mood</button>
+  </div>
+
+  <!-- Mood History -->
+  <div class="mood-card">
+    <h3>📅 Recent Mood History</h3>
+    <div id="moodList" style="margin-top:15px;"></div>
+  </div>
+
+</div>
+
+<script>
+const API = (location.hostname === "localhost") ? "http://localhost:5000" : "";
+
+/* Save mood using emoji button */
+async function saveMood(emoji) {
+  const note = document.getElementById("moodNote").value;
+  const payload = { mood: emoji, note, time: new Date().toISOString() };
+
+  await fetch(API + "/mood", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  document.getElementById("moodNote").value = "";
+  loadMoods();
+  toast("Mood saved!");
+}
+
+/* Save custom mood */
+async function saveMoodManual() {
+  const note = document.getElementById("moodNote").value.trim();
+  if (!note) {
+    toast("Write a mood or select an emoji!");
+    return;
+  }
+
+  const payload = { mood: note, note, time: new Date().toISOString() };
+
+  await fetch(API + "/mood", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  document.getElementById("moodNote").value = "";
+  loadMoods();
+  toast("Custom mood saved!");
+}
+
+/* Load mood history */
+async function loadMoods() {
+  const res = await fetch(API + "/mood");
+  const moods = await res.json();
+
+  const list = document.getElementById("moodList");
+  list.innerHTML = "";
+
+  moods.slice().reverse().forEach(m => {
+    const entry = document.createElement("div");
+    entry.className = "mood-entry";
+    entry.innerHTML = `
+      <strong>${m.mood}</strong> - ${m.note || "No note"}<br>
+      <small>${new Date(m.time).toLocaleString()}</small>
+    `;
+    list.appendChild(entry);
+  });
+}
+
+loadMoods();
+</script>
+
+<script src="script.js"></script>
+
+</body>
+</html>
